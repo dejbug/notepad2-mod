@@ -25,3 +25,4 @@
 .tags_sorted_by_file
 *.sublime-project
 *.sublime-workspace
+*.ansi.rc
