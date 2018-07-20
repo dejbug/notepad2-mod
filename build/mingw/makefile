@@ -123,6 +123,9 @@ move_file = IF EXIST $(subst /,\,$1) MOVE /Y $(subst /,\,$1) $(subst /,\,$2)
 
 make_from_root = $(MAKE) -C $(ROOT) -f ./build/mingw/makefile $1
 
+ansify_rc = $(PYTHON) $(ROOT)/ansify_rc.py -o $1 -f $(filter %.rc,$2)
+
+
 # -- Targets (generic)
 
 %.exe : ; $(call link_cc,$@,$^)
@@ -194,8 +197,9 @@ NOTEPAD_OBJECTS := $(notdir $(NOTEPAD_SOURCES:%.c=%.o))
 
 $(NAME).exe : Notepad2.rc.o EditPrint_dummy.o
 $(NAME).exe : $(NOTEPAD_OBJECTS) $(SCI_OBJECTS)
-Notepad2.rc.o : $(ROOT)/src/Notepad2.ansi.rc $(ROOT)/src/resource.h
+Notepad2.rc.o : $(ROOT)/src/Notepad2.ansi.rc
 EditPrint_dummy.o : EditPrint_dummy.c ; $(call compile_cc,$@,$^)
+$(ROOT)/src/Notepad2.ansi.rc : ; $(call ansify_rc,$@,$(ROOT)/src/Notepad2.rc)
 
 $(NOTEPAD_OBJECTS) : %.o : $(ROOT)/src/%.c ; $(call compile_cc,$@,$^)
 

@@ -59,7 +59,7 @@ def validate_and_adjust_args(parser, args):
 		args.inpath = os.path.abspath(args.inpath)
 		
 	if not os.path.isfile(args.inpath):
-		raise InvalidArgs("no infile found at '%s' (user passed '%s'); did you forget the --module-relative-paths flag?" % (args.inpath, args.original_inpath))
+		raise InvalidArgs("no infile found at '%s' (user passed '%s')%s" % (args.inpath, args.original_inpath, "" if args.module_relative_paths else "did you forget the --module-relative-paths flag?"))
 	
 	if args.outpath:
 		if args.module_relative_paths:
@@ -97,7 +97,7 @@ def make_module_relative_path(rel_path, argv=None):
 	else: return make_path(dir_from_path(__file__), rel_path)
 
 def make_path(root, rel_path):
-	return os.path.normpath(os.path.join(root, rel_path))
+	return os.path.abspath(os.path.join(root, rel_path))
 
 def dir_from_path(path):
 	return os.path.split(path)[0]
