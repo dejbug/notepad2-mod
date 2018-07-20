@@ -1,89 +1,157 @@
+## MinGW makefile. Designed with <3 by dejbug.
+
+# -- User settings (makefile)
+
+WARNINGS_LEVEL := 1
+ESCALATE_WARNINGS := false
+SILENCE_KNOWN_WARNINGS := true
+
+# -- User settings (project)
+
 NAME := Notepad2
 ROOT := ../..
+# All paths are relative to $(ROOT).
 
-CXX := g++
-CC := gcc
+INLINE_ALL := false
+INLINE_KEYWORD_OVERRIDE := 0
+
+# -- User settings (extras)
+#    (will be amended below with non-negotiable settings)
 
 INCLUDE_DIRS :=
-SYMBOLS :=
+SYMBOLS := BOOKMARK_EDITION UNICODE _UNICODE NDEBUG
 WINLIBS :=
 
-COMPILER_FLAGS :=
-CFLAGS :=
-CXXFLAGS :=
+COMPILER_FLAGS_COMMON := -msse2 -mthreads -O3
+CFLAGS := -std=c99
+CXXFLAGS := -std=c++11
 LDFLAGS :=
 
-SILENCE_WARNINGS := 1
-ESCALATE_WARNINGS := 0
+# -- User settings (tools)
+
+CC := gcc
+CXX := $(CC)
+LD := g++
+RC := windres
+PYTHON := python
+
+
+# -- Amendations
 
 INCLUDE_DIRS += $(ROOT)/src
 INCLUDE_DIRS += $(ROOT)/scintilla/include
 INCLUDE_DIRS += $(ROOT)/scintilla/lexlib
 INCLUDE_DIRS += $(ROOT)/scintilla/src
 
+
 SYMBOLS += MINGW_BUILD
-SYMBOLS += STRICT
-SYMBOLS += UNICODE _UNICODE WIN32 NDEBUG _WINDOWS
+SYMBOLS += WIN32  _WINDOWS  STRICT
+SYMBOLS += STATIC_BUILD  SCI_LEXER  USE_D2D
 SYMBOLS += _CRT_SECURE_NO_WARNINGS
-SYMBOLS += _CRT_SECURE_NO_DEPRECATE _SCL_SECURE_NO_WARNINGS
-SYMBOLS += STATIC_BUILD SCI_LEXER BOOKMARK_EDITION USE_D2D
-# SYMBOLS += __inline=__inline__
-# SYMBOLS += __inline=inline
-# SYMBOLS += __inline=
+SYMBOLS += _CRT_SECURE_NO_DEPRECATE
+SYMBOLS += _SCL_SECURE_NO_WARNINGS
 
-WINLIBS += gdi32 comctl32 comdlg32 imm32 shlwapi msimg32 uuid ole32 oleaut32
-
-COMPILER_FLAGS += $(addprefix -I,$(INCLUDE_DIRS))
-COMPILER_FLAGS += $(addprefix -D,$(SYMBOLS))
-COMPILER_FLAGS += -imacros mingw_build_macros.h
-COMPILER_FLAGS += -Xlinker --subsystem=windows
-COMPILER_FLAGS += -msse2 -mthreads
-COMPILER_FLAGS += -O3
-COMPILER_FLAGS += -Wall -Wextra
-ifeq ($(ESCALATE_WARNINGS),0)
-else
-COMPILER_FLAGS += -Werror
-endif
-ifeq ($(SILENCE_WARNINGS),0)
-COMPILER_FLAGS += -Winline
-else
-# COMPILER_FLAGS += -pedantic
-COMPILER_FLAGS += -finline-functions
-COMPILER_FLAGS += -Wno-unused-parameter
-COMPILER_FLAGS += -Wno-unused-variable
-COMPILER_FLAGS += -Wno-unused-but-set-variable
-COMPILER_FLAGS += -Wno-unused-value
-COMPILER_FLAGS += -Wno-missing-braces
-COMPILER_FLAGS += -Wno-parentheses
-COMPILER_FLAGS += -Wno-implicit-fallthrough
-COMPILER_FLAGS += -Wno-sign-compare
+ifeq ($(INLINE_KEYWORD_OVERRIDE),0)
+# Nothing.
+else ifeq ($(WARNINGS_LEVEL),1)
+SYMBOLS += __inline=inline
+else ifeq ($(WARNINGS_LEVEL),2)
+SYMBOLS += __inline=__inline__
+else ifeq ($(WARNINGS_LEVEL),3)
+SYMBOLS += __inline=
 endif
 
-CFLAGS += $(COMPILER_FLAGS)
-CFLAGS += -std=c11
-# CFLAGS += -Wno-incompatible-pointer-types
+WINLIBS += gdi32 comctl32 comdlg32 shlwapi
+WINLIBS += uuid ole32 oleaut32
+WINLIBS += imm32 msimg32
 
-CXXFLAGS += $(COMPILER_FLAGS)
-CXXFLAGS += -std=c++11
 
+COMPILER_FLAGS_COMMON += -imacros mingw_build_macros.h
+COMPILER_FLAGS_COMMON += -Wl,--subsystem=windows
+
+ifeq ($(INLINE_ALL),true)
+COMPILER_FLAGS_COMMON += -finline-functions
+endif
+
+ifeq ($(ESCALATE_WARNINGS),true)
+COMPILER_FLAGS_COMMON += -Werror
+endif
+
+ifeq ($(WARNINGS_LEVEL),0)
+COMPILER_FLAGS_COMMON +=
+else ifeq ($(WARNINGS_LEVEL),1)
+COMPILER_FLAGS_COMMON += -Wall -Wextra
+else ifeq ($(WARNINGS_LEVEL),2)
+COMPILER_FLAGS_COMMON += -Wall -Wextra -Winline
+else ifeq ($(WARNINGS_LEVEL),3)
+COMPILER_FLAGS_COMMON += -Wall -Wextra -Winline -pedantic
+endif
+
+ifeq ($(SILENCE_KNOWN_WARNINGS),true)
+COMPILER_FLAGS_COMMON += -Wno-unused-parameter
+COMPILER_FLAGS_COMMON += -Wno-unused-variable
+COMPILER_FLAGS_COMMON += -Wno-unused-but-set-variable
+COMPILER_FLAGS_COMMON += -Wno-unused-value
+COMPILER_FLAGS_COMMON += -Wno-missing-braces
+COMPILER_FLAGS_COMMON += -Wno-missing-field-initializers
+COMPILER_FLAGS_COMMON += -Wno-parentheses
+COMPILER_FLAGS_COMMON += -Wno-implicit-fallthrough
+COMPILER_FLAGS_COMMON += -Wno-sign-compare
+
+CFLAGS += -Wno-incompatible-pointer-types
+endif
+
+COMPILER_FLAGS_COMMON += $(addprefix -D,$(SYMBOLS))
+COMPILER_FLAGS_COMMON += $(addprefix -I,$(INCLUDE_DIRS))
+
+
+CFLAGS += $(COMPILER_FLAGS_COMMON)
+CXXFLAGS += $(COMPILER_FLAGS_COMMON)
 LDFLAGS += $(addprefix -l,$(WINLIBS))
 
 
-COMPILE_CXX = $(CXX) -c -o $1 $(filter %.cpp %.cxx %.c,$2) $(CXXFLAGS)
-COMPILE_CC = $(CC) -c -o $1 $(filter %.cpp %.cxx %.c,$2) $(CFLAGS)
+# -- Functions (common)
 
-LINK_CXX = $(CXX) -o $1 $(filter %.o %.a %.dll,$2) $(CXXFLAGS) $(LDFLAGS)
-LINK_CC = $(CC) -o $1 $(filter %.o %.a %.dll,$2) $(CFLAGS) $(LDFLAGS)
+compile_cxx = $(CXX) -c -o $1 $(filter %.cpp %.cxx %.c,$2) $(CXXFLAGS)
+compile_cc = $(CC) -c -o $1 $(filter %.cpp %.cxx %.c,$2) $(CFLAGS)
+
+link_cxx = $(LD) -o $1 $(filter %.o %.a %.dll,$2) $(CXXFLAGS) $(LDFLAGS)
+link_cc = $(LD) -o $1 $(filter %.o %.a %.dll,$2) $(CFLAGS) $(LDFLAGS)
+
+create_dir = IF NOT EXIST $(subst /,\,$1) MKDIR $(subst /,\,$1)
+move_file = IF EXIST $(subst /,\,$1) MOVE /Y $(subst /,\,$1) $(subst /,\,$2)
+
+make_from_root = $(MAKE) -C $(ROOT) -f ./build/mingw/makefile $1
+
+# -- Targets (generic)
+
+%.exe : ; $(call link_cc,$@,$^)
+%.o : ; $(call compile_cc,$@,$^)
+%.rc.o : ; $(RC) -o $@ -i $(filter %.rc,$^)
+
+
+# -- Targets (main)
+
+MANIFEST_PATH := $(ROOT)/res/Notepad2.exe.manifest
+REVISION_PATH := $(ROOT)/src/VersionRev.h
 
 .PHONY : all
-all : $(ROOT)/src/VersionRev.h
-all : $(ROOT)/res/Notepad2.exe.manifest
+all : $(MANIFEST_PATH)
+all : $(REVISION_PATH)
 all : $(NAME).exe
-$(ROOT)/res/Notepad2.exe.manifest : $(ROOT)/src/VersionRev.h
-$(ROOT)/src/VersionRev.h : ; $(MAKE) -C $(ROOT) -f build/mingw/makefile versions
+
+$(MANIFEST_PATH) : $(REVISION_PATH) ;
+$(REVISION_PATH) : ; $(call make_from_root,versions)
+
+
+# -- Targets (main)
+#    (to be called into from $(ROOT) )
 
 .PHONY : versions
-versions : ; @python update_rev.py
+versions : ; $(PYTHON) update_rev.py
+
+
+# -- Functions (Scintilla)
 
 SCI_MODS :=
 SCI_OBJECTS :=
@@ -101,11 +169,14 @@ sci_mods : sci_$1
 
 .PHONY : sci_$1  sci_$1_folder
 sci_$1 : $$(SCI_$1_OBJECTS) ;
-sci_$1_folder : ; IF NOT EXIST $(subst /,\,$1) MKDIR $(subst /,\,$1)
+sci_$1_folder : ; $$(call create_dir,$1)
 
 $$(SCI_$1_OBJECTS) : $1/%.o : $$(SCI_$1_DIRPATH)/%.$2 | sci_$1_folder
-	$$(call COMPILE_CC,$$@,$$^)
+	$$(call compile_cxx,$$@,$$^)
 endef
+
+
+# -- Targets (Scintilla)
 
 .PHONY : sci_mods
 sci_mods :
@@ -116,40 +187,43 @@ $(eval $(call sci_mod_target,win32,cxx))
 sci_mods : ; @echo $^
 
 
+# -- Targets (Notepad2)
+
 NOTEPAD_SOURCES := $(wildcard $(ROOT)/src/*.c)
 NOTEPAD_OBJECTS := $(notdir $(NOTEPAD_SOURCES:%.c=%.o))
 
 $(NAME).exe : Notepad2.rc.o EditPrint_dummy.o
 $(NAME).exe : $(NOTEPAD_OBJECTS) $(SCI_OBJECTS)
 Notepad2.rc.o : $(ROOT)/src/Notepad2.ansi.rc $(ROOT)/src/resource.h
-EditPrint_dummy.o : EditPrint_dummy.c ; $(call COMPILE_CC,$@,$^)
+EditPrint_dummy.o : EditPrint_dummy.c ; $(call compile_cc,$@,$^)
 
-$(NOTEPAD_OBJECTS) : %.o : $(ROOT)/src/%.c ; $(call COMPILE_CC,$@,$^)
+$(NOTEPAD_OBJECTS) : %.o : $(ROOT)/src/%.c ; $(call compile_cc,$@,$^)
 
 
-%.exe : ; $(call LINK_CXX,$@,$^)
-%.o : ; $(call COMPILE_CC,$@,$^)
-%.rc.o : ; windres -o $@ -i $(filter %.rc,$^)
+# -- Functions (cleanup and run)
+
+delete_file = DEL $(subst /,\,$1) 2>NUL
+define delete_files
+	$(foreach file,$1,$(call delete_file,$(file))
+)
+endef
+delete_dir = @IF EXIST $(subst /,\,$1) RMDIR /S /Q $(subst /,\,$1)
+define delete_dirs
+	$(foreach dir,$1,$(call delete_dir,$(dir))
+)
+endef
+
+
+# -- Targets (cleanup and run)
 
 .PHONY : clean reset run
 
-shell_delfile = DEL $(subst /,\,$1) 2>NUL
-define shell_delfiles
-	$(foreach file,$1,$(call shell_delfile,$(file))
-)
-endef
-shell_deldir = @IF EXIST $(subst /,\,$1) RMDIR /S /Q $(subst /,\,$1)
-define shell_deldirs
-	$(foreach dir,$1,$(call shell_deldir,$(dir))
-)
-endef
-
 clean :
-	$(call shell_delfile,$(NAME).exe)
-	$(call shell_delfiles,*.o *.a)
-	$(call shell_delfile,$(ROOT)/res/Notepad2.exe.manifest)
-	$(call shell_delfile,$(ROOT)/src/VersionRev.h)
-	$(call shell_deldirs,lexers lexlib src win32)
+	$(call delete_file,$(NAME).exe)
+	$(call delete_files,*.o *.a)
+	$(call delete_file,$(ROOT)/res/Notepad2.exe.manifest)
+	$(call delete_file,$(ROOT)/src/VersionRev.h)
+	$(call delete_dirs,lexers lexlib src win32)
 
 reset : | clean ;
 
