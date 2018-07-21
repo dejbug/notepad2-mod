@@ -7,16 +7,31 @@ max_jobs: 1
 install:
   - cmd: SET MINGW_DIR=C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
   - cmd: SET PATH=%MINGW_DIR%\mingw32\bin;%PATH%
-  
+
 before_build:
   - cmd: mingw32-make --version | head -1
   - cmd: g++ --version | head -1
   - cmd: 7z --help | head -3
-  - cmd: git symbolic-ref HEAD
+  # - cmd: git symbolic-ref HEAD
+  - cmd: git ls-remote .
+  - cmd: git branch
+  - cmd: git rev-parse --abbrev-ref HEAD
+  - cmd: git branch | awk '/\*/ { print $2; }'
 
 build_script:
-  - cmd: cd "build\mingw"
+  - cmd: CD build\mingw
   - cmd: mingw32-make
+
+after_build:
+  - cmd: MKDIR ..\..\deploy
+  - cmd: CD ..\..\deploy
+  - cmd: COPY build\mingw\Notepad2.exe .
+  - cmd: COPY ..\README.md .
+  - cmd: COPY ..\LICENSE .
+  - cmd: 7z a ..\%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.7z .
+
+artifacts:
+  - path: $(appveyor_project_name)-$(appveyor_build_number).7z
 
 matrix:
   fast_finish: true
