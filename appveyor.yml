@@ -37,6 +37,6 @@ matrix:
 
 deploy:
   - provider: Environment
-    name: GH
+    name: appveyor-releases
     on:
-      branch: filevars
+      branch: filevars_appveyor
