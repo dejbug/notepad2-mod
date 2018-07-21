@@ -40,3 +40,8 @@ deploy:
     name: appveyor-releases
     on:
       branch: filevars_appveyor
+
+  - provider: Environment
+    name: GH
+    on:
+      branch: filevars_appveyor
