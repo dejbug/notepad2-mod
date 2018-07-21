@@ -1,11 +1,21 @@
-image: Visual Studio 2017
-
 version: "{build}"
 
-#clone_depth: 10
+skip_tags: true
+test: off
+max_jobs: 1
+
+install:
+  - cmd: SET MINGW_DIR=C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
+  - cmd: SET PATH=%MINGW_DIR%\mingw32\bin;%PATH%
+  
+before_build:
+  - cmd: mingw32-make --version | head -1
+  - cmd: g++ --version | head -1
+  - cmd: 7z --help | head -3
 
 build_script:
-  - CALL "build\build_vs2017.bat" Build All Release
+  - cmd: cd "build\mingw"
+  - cmd: mingw32-make
 
 test: off
 
@@ -13,3 +23,9 @@ deploy: off
 
 matrix:
   fast_finish: true
+
+deploy:
+  - provider: Environment
+    name: GH
+    on:
+      branch: master
