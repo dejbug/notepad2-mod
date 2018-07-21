@@ -27,6 +27,7 @@ after_build:
   - cmd: COPY ..\Readme-mod.txt .
   - cmd: COPY ..\Readme.md .
   - cmd: COPY ..\License.txt .
+  - cmd: ECHO https://github.com/dejbug/notepad2-mod/tree/filevars_appveyor > ..\%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.txt
   - cmd: 7z a ..\%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.7z .
 
 artifacts:
