@@ -12,7 +12,7 @@ before_build:
   - cmd: mingw32-make --version | head -1
   - cmd: g++ --version | head -1
   - cmd: 7z --help | head -3
-  - cmd: git symbolic-ref -q HEAD
+  - cmd: git symbolic-ref HEAD
 
 build_script:
   - cmd: cd "build\mingw"
