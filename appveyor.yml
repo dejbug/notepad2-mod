@@ -28,4 +28,4 @@ deploy:
   - provider: Environment
     name: GH
     on:
-      branch: master
+      branch: filevars
