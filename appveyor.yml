@@ -17,8 +17,6 @@ build_script:
   - cmd: cd "build\mingw"
   - cmd: mingw32-make
 
-deploy: off
-
 matrix:
   fast_finish: true
 
