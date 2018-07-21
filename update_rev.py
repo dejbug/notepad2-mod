@@ -89,9 +89,19 @@ class git(object):
 
 	@staticmethod
 	def get_current_branch_name():
-		exitcode, stdout = run.out("git symbolic-ref -q HEAD")
+		exitcode, stdout = run.out("git branch")
 		if exitcode: return "no branch"
-		return re.sub(r'refs/heads/', '', stdout)
+
+		## Check first line for "detached" message.
+		if re.search(r'^\* \(HEAD detached at', stdout):
+			## Second line should have the branch name.
+			r = re.match("^.+[\r\n]+[ \t]*([^ \t\r\n]+)", stdout)
+			if not r: return "no branch"
+			return r.group(1)
+		else:
+			r = re.search("(?m)^\*[ \t]*([^ \t\r\n]+)", stdout)
+			if not r: return "no branch"
+			return r.group(1)
 
 	@staticmethod
 	def ref_exists(exact_ref_path):
@@ -186,7 +196,7 @@ class version_info_t(object):
 
 		# Get the current branch name
 		self.branch = git.get_current_branch_name()
-		
+
 		self.ver_full = ""
 		self.base = ""
 

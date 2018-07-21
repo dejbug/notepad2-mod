@@ -12,11 +12,6 @@ before_build:
   - cmd: mingw32-make --version | head -1
   - cmd: g++ --version | head -1
   - cmd: 7z --help | head -3
-  # - cmd: git symbolic-ref HEAD
-  - cmd: git ls-remote .
-  - cmd: git branch
-  - cmd: git rev-parse --abbrev-ref HEAD
-  - cmd: git branch | awk '/\*/ { print $2; }'
 
 build_script:
   - cmd: CD build\mingw
