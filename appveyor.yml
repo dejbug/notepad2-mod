@@ -20,9 +20,13 @@ build_script:
 after_build:
   - cmd: MKDIR ..\..\deploy
   - cmd: CD ..\..\deploy
-  - cmd: COPY build\mingw\Notepad2.exe .
-  - cmd: COPY ..\README.md .
-  - cmd: COPY ..\LICENSE .
+  - cmd: COPY ..\build\mingw\Notepad2.exe .
+  - cmd: COPY ..\Notepad2.ini .
+  - cmd: COPY ..\Notepad2.txt .
+  - cmd: COPY ..\Readme.txt .
+  - cmd: COPY ..\Readme-mod.txt .
+  - cmd: COPY ..\Readme.md .
+  - cmd: COPY ..\License.txt .
   - cmd: 7z a ..\%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.7z .
 
 artifacts:
