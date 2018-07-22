@@ -33,7 +33,7 @@ after_build:
   - cmd: 7z a ..\%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.7z .
 
 artifacts:
-  - path: $(appveyor_project_name)-$(appveyor_repo_branch)-$(appveyor_build_number).7z
+  - path: $(appveyor_project_name)-($(appveyor_repo_branch))-$(appveyor_build_number).7z
 
 matrix:
   fast_finish: true
