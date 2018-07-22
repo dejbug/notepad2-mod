@@ -1,5 +1,14 @@
 # Notepad2-mod
 
+This is a test branch (for appveyor) of my (dejbug's) contributions as developed under the `filevars` branch.
+
+
+---
+
+# Original README:
+
+# Notepad2-mod
+
 > *A modified version (fork) of Notepad2 based on Kai Liu's and other people's patches.*
 
 [![Build status](https://img.shields.io/appveyor/ci/XhmikosR/notepad2-mod/master.svg)](https://ci.appveyor.com/project/XhmikosR/notepad2-mod/branch/master)
