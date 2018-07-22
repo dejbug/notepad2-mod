@@ -5,9 +5,10 @@ test: off
 max_jobs: 1
 
 install:
-  - cmd: FOR /F "delims=" %%a IN ('python appveyor_mingw.py') DO SET MINGW_DIR=%%a
+  - cmd: FOR /F "delims=" %%a IN ('python build\mingw\appveyor_mingw.py --arch i686') DO SET MINGW_DIR=%%a
   - cmd: IF "."=="%MINGW_DIR%" ( EXIT 404 )
-  - cmd: SET PATH=%MINGW_DIR%\mingw64\bin;%PATH%
+  - cmd: ECHO MinGW64 found at %MINGW_DIR%.
+  - cmd: SET PATH=%MINGW_DIR%\mingw32\bin;%MINGW_DIR%\mingw64\bin;%PATH%
 
 before_build:
   - cmd: mingw32-make --version | head -1
@@ -28,11 +29,11 @@ after_build:
   - cmd: COPY ..\Readme-mod.txt .
   - cmd: COPY ..\Readme.md .
   - cmd: COPY ..\License.txt .
-  - cmd: ECHO https://github.com/dejbug/notepad2-mod/tree/filevars_appveyor> %APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.txt
-  - cmd: 7z a ..\%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.7z .
+  - cmd: ECHO https://github.com/%APPVEYOR_REPO_NAME%/tree/%APPVEYOR_REPO_BRANCH%> %APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.txt
+  - cmd: 7z a ..\%APPVEYOR_PROJECT_NAME%-(%APPVEYOR_REPO_BRANCH%)-%APPVEYOR_BUILD_NUMBER%.7z .
 
 artifacts:
-  - path: $(appveyor_project_name)-$(appveyor_build_number).7z
+  - path: $(appveyor_project_name)-($(appveyor_repo_branch))-$(appveyor_build_number).7z
 
 matrix:
   fast_finish: true
@@ -41,9 +42,9 @@ deploy:
   - provider: Environment
     name: appveyor-releases
     on:
-      branch: filevars_appveyor
+      branch: next-av
 
   - provider: Environment
     name: GH
     on:
-      branch: filevars_appveyor
+      branch: next-av

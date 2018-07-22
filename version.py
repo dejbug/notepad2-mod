@@ -190,10 +190,10 @@ class version_info_t(object):
 		# Get the current branch name
 		self.branch = git.get_current_branch_name()
 
-		if "master" == self.branch:
-			self.ver_full = ""
-			self.base = ""
-		else:
+		self.ver_full = ""
+		self.base = ""
+
+		if "master" != self.branch:
 			# If we are on another branch that isn't master, we
 			#	want extra info like on which commit from master
 			#	it is based on and what its hash is. This assumes
