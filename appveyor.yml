@@ -7,7 +7,8 @@ max_jobs: 1
 install:
   - cmd: FOR /F "delims=" %%a IN ('python build\mingw\appveyor_mingw.py --arch i686') DO SET MINGW_DIR=%%a
   - cmd: IF "."=="%MINGW_DIR%" ( EXIT 404 )
-  - cmd: SET PATH=%MINGW_DIR%\mingw64\bin;%PATH%
+  - cmd: ECHO MinGW64 found at %MINGW_DIR%.
+  - cmd: SET PATH=%MINGW_DIR%\mingw32\bin;%MINGW_DIR%\mingw64\bin;%PATH%
 
 before_build:
   - cmd: mingw32-make --version | head -1
