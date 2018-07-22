@@ -1,6 +1,6 @@
 ## MinGW makefile. Designed with <3 by dejbug.
 
-SHELL ?= cmd.exe
+SHELL := cmd.exe
 
 # -- User settings (makefile)
 
