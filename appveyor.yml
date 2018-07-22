@@ -41,9 +41,9 @@ deploy:
   - provider: Environment
     name: appveyor-releases
     on:
-      branch: filevars_appveyor
+      branch: next-av
 
   - provider: Environment
     name: GH
     on:
-      branch: filevars_appveyor
+      branch: next-av
