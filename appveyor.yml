@@ -28,11 +28,11 @@ after_build:
   - cmd: COPY ..\Readme-mod.txt .
   - cmd: COPY ..\Readme.md .
   - cmd: COPY ..\License.txt .
-  - cmd: ECHO https://github.com/dejbug/notepad2-mod/tree/filevars_appveyor> %APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.txt
+  - cmd: ECHO https://github.com/%APPVEYOR_REPO_NAME%/tree/%APPVEYOR_REPO_BRANCH%> %APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.txt
   - cmd: 7z a ..\%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.7z .
 
 artifacts:
-  - path: $(appveyor_project_name)-$(appveyor_build_number).7z
+  - path: $(appveyor_project_name)-$(appveyor_repo_branch)-$(appveyor_build_number).7z
 
 matrix:
   fast_finish: true
